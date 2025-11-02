@@ -3,6 +3,8 @@ import requests
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+print("🤖 Starting Jewelry Bot...")
+
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
@@ -18,29 +20,29 @@ class JewelryBot:
     
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
-            "🎉 أهلاً بك في بوت تسويق المجوهرات!\n\n"
-            "📸 أرسل لي صورة أي منتج (خاتم، عقد، إكسسوار) وسأصنع لك:\n"
-            "• وصف تسويقي احترافي\n• هاشتاقات جذابة\n• نصائح للتصوير\n\n"
-            "🚀 ابدأ الآن بإرسال صورة منتجك!"
+            "Welcome to Jewelry Marketing Bot!\n\n"
+            "Send me a product photo and I'll create:\n"
+            "• Marketing description\n• Hashtags\n• Tips\n\n"
+            "Send a product photo now!"
         )
     
     async def handle_photo(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text("🔄 جاري تحليل صورتك وإنشاء محتوى تسويقي...")
+        await update.message.reply_text("🔄 Analyzing your image...")
         
         try:
-            # تحميل الصورة
+            # Download photo
             photo_file = await update.message.photo[-1].get_file()
             image_data = await photo_file.download_as_bytearray()
             
-            # تحليل الصورة
+            # Analyze image
             analysis = await self.analyze_image(image_data)
             await update.message.reply_text(f"📋 {analysis}")
             
-            # إنشاء محتوى تسويقي
+            # Create marketing content
             await self.create_marketing_content(update.message.chat_id, analysis)
             
         except Exception as e:
-            await update.message.reply_text(f"⚠ خطأ: {str(e)}")
+            await update.message.reply_text(f"⚠ Error: {str(e)}")
     
     async def analyze_image(self, image_data):
         API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base"
@@ -50,35 +52,35 @@ class JewelryBot:
         
         if response.status_code == 200:
             result = response.json()
-            return f"تحليل المنتج: {result.get('generated_text', 'منتج مجوهرات أنيق')}"
-        return "منتج مجوهرات فاخر - جودة عالية"
+            return f"Product: {result.get('generated_text', 'Elegant jewelry product')}"
+        return "Luxury jewelry product - high quality"
     
     async def create_marketing_content(self, chat_id, description):
         content = f"""
-💎 *محتوى تسويقي جاهز*
+💎 *Marketing Content Ready*
 
-📝 *الوصف الاحترافي:*
-"اكتشف جمال {description} ✨
-تصميم أنيق وجودة استثنائية تناسب ذوقك الرفيع"
+📝 *Professional Description:*
+"Discover the beauty of {description} ✨
+Elegant design and exceptional quality"
 
-🏷 *الهاشتاقات:*
-#مجوهرات #اكسسوارات #ذهب #ماس #أناقة
-#موضة #تسوق_إلكتروني #جزائر #هدايا
+🏷 *Hashtags:*
+#Jewelry #Accessories #Gold #Diamond #Fashion
+#Luxury #Gifts #Algeria
 
-🎯 *نصائح تسويقية:*
-• استخدم إضاءة طبيعية
-• صور المنتج من زوايا متعددة  
-• أضف مقارنة بالأحجام
-• highlight الجودة والتفاصيل
+🎯 *Marketing Tips:*
+• Use natural lighting
+• Shoot from multiple angles
+• Show size comparison
+• Highlight quality details
 """
         await self.application.bot.send_message(chat_id, content)
     
     async def handle_text(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if update.message.text != "/start":
-            await update.message.reply_text("📸 أرسل صورة منتجك للحصول على محتوى تسويقي مخصص!")
+            await update.message.reply_text("📸 Send a product photo for marketing content!")
     
     def run(self):
-        print("🤖 البوت شغال على Render!")
+        print("✅ Bot is running on Render!")
         self.application.run_polling()
 
 if _name_ == "_main_":
